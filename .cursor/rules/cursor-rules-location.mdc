@@ -1,0 +1,115 @@
+---
+description: Standards for generating Cursor rules appropriately and placing Cursor rule files in the correct directory
+globs: *.mdc
+alwaysApply: true
+---
+filters:
+  # Match any .mdc files
+  - type: file_extension
+    pattern: "\\.mdc$"
+  # Match files that look like Cursor rules
+  - type: content
+    pattern: "(?s)<rule>.*?</rule>"
+  # Match file creation events
+  - type: event
+    pattern: "file_create"
+
+actions:
+  - type: reject
+    conditions:
+      - pattern: "^(?!\\.\\/\\.cursor\\/rules\\/.*\\.mdc$)"
+        message: "Cursor rule files (.mdc) must be placed in the .cursor/rules directory"
+
+  - type: suggest
+    message: |
+      When creating Cursor rules:
+
+      1. Always place rule files in PROJECT_ROOT/.cursor/rules/:
+         ```
+         .cursor/rules/
+         ├── your-rule-name.mdc
+         ├── another-rule.mdc
+         └── ...
+         ```
+
+      2. Follow the naming convention:
+         - Use kebab-case for filenames
+         - Always use .mdc extension
+         - Make names descriptive of the rule's purpose
+
+      3. Directory structure:
+         ```
+         PROJECT_ROOT/
+         ├── .cursor/
+         │   └── rules/
+         │       ├── your-rule-name.mdc
+         │       └── ...
+         └── ...
+         ```
+
+      4. Never place rule files:
+         - In the project root
+         - In subdirectories outside .cursor/rules
+         - In any other location
+         
+      5. **When Modifying Rules:**
+         - Always locate existing rules with `file_search` first
+         - Read the entire file content before making any changes
+         - Modify specific sections rather than rewriting the whole file
+         - Preserve the rule's structure, including surrounding tags and markdown
+         - After editing, verify the changes were applied correctly
+         - If you make a mistake, clean up one step at a time
+         
+      6. **Common Errors to Avoid:**
+         - Creating duplicate rule files in multiple locations
+         - Editing only part of the rule's structure while corrupting the rest
+         - Attempting to move rules between directories
+         - Failing to verify the correct file path before making changes
+         - Rewriting the entire rule instead of modifying specific content
+
+examples:
+  - input: |
+      # Bad: Rule file in wrong location
+      rules/my-rule.mdc
+      my-rule.mdc
+      .rules/my-rule.mdc
+
+      # Good: Rule file in correct location
+      .cursor/rules/my-rule.mdc
+    output: "Correctly placed Cursor rule file"
+    
+  - input: |
+      # Update the equipment inventory to add a new item
+    output: |
+      1. First locate the rule: `file_search equipment-inventory.mdc`
+      2. Confirm it's in .cursor/rules/
+      3. Read the entire file
+      4. Identify the specific section to modify (Available Equipment list)
+      5. Make targeted edits only to that section
+      6. Preserve surrounding rule structure
+      7. Verify changes
+
+  - input: |
+      # Modify an existing rule
+    output: |
+      # ✅ Correct approach:
+      ```
+      // First read and understand the rule structure
+      read_file(".cursor/rules/equipment-inventory.mdc")
+      
+      // Then make a targeted edit to a specific section
+      edit_file(
+        target_file: ".cursor/rules/equipment-inventory.mdc",
+        instructions: "Add pulley system to Available Equipment section",
+        code_edit: "          - Other Equipment:\n            * Gymnastic rings (mounted on rack)\n            * Pulley system for assisted movements\n      \n      2. **NOT Available:**"
+      )
+      ```
+      
+      # ❌ Incorrect approach:
+      ```
+      // Don't create files outside .cursor/rules/
+      edit_file("equipment-inventory.mdc", ...)
+      
+      // Don't try to rewrite the entire rule structure
+      edit_file(".cursor/rules/equipment-inventory.mdc", "Replace with completely new content")
+      ```

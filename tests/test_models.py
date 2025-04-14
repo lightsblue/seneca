@@ -1,6 +1,6 @@
 import pytest
 from pydantic import ValidationError
-from latin_translator.models import Letter, TranslationRequest, ParagraphData
+from latin_translator.models import Letter, ParagraphData
 
 
 def test_letter_model():
@@ -11,19 +11,12 @@ def test_letter_model():
     assert letter.content == "Lorem ipsum dolor sit amet."
 
 
-def test_translation_request_model():
-    request = TranslationRequest(text="Lorem ipsum dolor sit amet.", instructions="Translate this text.")
-    assert request.text == "Lorem ipsum dolor sit amet."
-    assert request.instructions == "Translate this text."
-    assert request.max_context == 1
-    assert request.translate is True
-    assert request.monologue_threshold == 3
-
-
 def test_paragraph_data_model():
-    paragraph_data = ParagraphData(paragraph_index=1, sentences=["Sentence 1.", "Sentence 2."])
-    assert paragraph_data.paragraph_index == 1
-    assert paragraph_data.sentences == ["Sentence 1.", "Sentence 2."]
+    paragraph = ParagraphData(paragraph_index=1, sentences=["First sentence.", "Second sentence."])
+    assert paragraph.paragraph_index == 1
+    assert len(paragraph.sentences) == 2
+    assert paragraph.sentences[0] == "First sentence."
+    assert paragraph.sentences[1] == "Second sentence."
 
 
 def test_invalid_letter_model():

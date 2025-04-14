@@ -1,7 +1,7 @@
 from typing import List, Optional
 import os
 from openai import OpenAI
-from ..models import Letter, TranslationRequest, ParagraphData
+from ..models import Letter, ParagraphData
 from ..text.utils import split_paragraphs, split_text_with_quotes, clean_translation
 
 class TranslationOrchestrator:
@@ -129,13 +129,12 @@ class TranslationOrchestrator:
         
         return "\n\n".join(final_paragraphs)
 
-    def process_letter(self, letter: Letter, request: TranslationRequest) -> List[ParagraphData]:
+    def process_letter(self, letter: Letter) -> List[ParagraphData]:
         """
         Process a complete letter through both translation phases.
         
         Args:
             letter: The letter to translate
-            request: Translation request with instructions
             
         Returns:
             List of translated paragraphs with their sentences

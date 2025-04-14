@@ -1,29 +1,33 @@
 import pytest
 from unittest.mock import Mock
-from latin_translator.models import Letter, TranslationRequest
+from latin_translator.models import Letter
 from latin_translator.service.batch import BatchProcessor
-from latin_translator.service.orchestrator import TranslationOrchestrator
 
 
 def test_process_letters():
-    mock_orchestrator = Mock(spec=TranslationOrchestrator)
-    mock_orchestrator.process_letter.return_value = [{
-        "paragraph_index": 1,
-        "sentences": ["Translated sentence."]
-    }]
-    batch_processor = BatchProcessor(orchestrator=mock_orchestrator)
-
-    letters = [
-        Letter(number=1, roman="I", title="Test Title 1", content="Lorem ipsum dolor sit amet."),
-        Letter(number=2, roman="II", title="Test Title 2", content="Consectetur adipiscing elit.")
+    # Create a mock orchestrator
+    mock_orchestrator = Mock()
+    mock_orchestrator.process_letter.return_value = [
+        {"paragraph_index": 1, "sentences": ["Translated sentence 1."]}
     ]
-    request = TranslationRequest(text="", instructions="Translate this text.")
-
-    result = batch_processor.process_letters(letters, request)
-
-    assert len(result) == 2
-    assert result[0][0]["paragraph_index"] == 1
-    assert result[0][0]["sentences"] == ["Translated sentence."]
-    assert result[1][0]["paragraph_index"] == 1
-    assert result[1][0]["sentences"] == ["Translated sentence."]
-    assert mock_orchestrator.process_letter.call_count == 2 
+    
+    batch_processor = BatchProcessor(orchestrator=mock_orchestrator)
+    
+    # Create test letters
+    letters = [
+        Letter(number=1, roman="I", title="Test 1", content="Lorem ipsum."),
+        Letter(number=2, roman="II", title="Test 2", content="Dolor sit amet.")
+    ]
+    
+    # Process the letters
+    results = batch_processor.process_letters(letters)
+    
+    # Verify results
+    assert len(results) == 2
+    assert results[0] == mock_orchestrator.process_letter.return_value
+    assert results[1] == mock_orchestrator.process_letter.return_value
+    
+    # Verify the orchestrator was called correctly for each letter
+    assert mock_orchestrator.process_letter.call_count == 2
+    mock_orchestrator.process_letter.assert_any_call(letters[0])
+    mock_orchestrator.process_letter.assert_any_call(letters[1]) 

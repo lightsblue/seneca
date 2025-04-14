@@ -1,0 +1,123 @@
+---
+description: Standards for setting up and organizing Python projects, emphasizing proper sequence and structure from the start
+globs: *.py *.ipynb setup.py requirements.txt
+alwaysApply: true
+---
+
+# Project Setup Sequence
+
+When setting up or modifying a Python project, follow this sequence to ensure proper organization and alignment with project standards.
+
+## Initial Setup Phase
+
+1. **Read All Documentation First**
+   ```
+   - DESIGN.md for architecture and principles
+   - README.md for setup instructions
+   - Any additional documentation about project standards
+   ```
+
+2. **Set Up Development Environment**
+   ```
+   - Follow README.md instructions exactly
+   - Create/activate virtual environment
+   - Install dependencies
+   - Verify setup with tests
+   ```
+
+3. **Create Project Structure**
+   ```
+   project_root/
+   ├── src/
+   │   └── package_name/
+   │       ├── __init__.py
+   │       ├── models.py         # Data models
+   │       ├── prompts/          # Templates/prompts
+   │       └── service/          # Core services
+   ├── tests/
+   │   └── test_*.py
+   ├── notebooks/               # Interface layer only
+   ├── setup.py
+   └── requirements.txt
+   ```
+
+## Development Guidelines
+
+1. **Module Organization**
+   - Keep core functionality in proper modules
+   - Use notebooks only as thin interface layers
+   - Store templates/prompts in separate files
+   - Follow the project's specified directory structure
+
+2. **Type System & Documentation**
+   - Start with proper type hints
+   - Use Pydantic for data validation
+   - Document all public interfaces
+   - Follow "AI-First Development" principles
+
+3. **Testing Infrastructure**
+   - Create test files matching module structure
+   - Include specified test markers
+   - Set up testing framework early
+
+## Common Mistakes to Avoid
+
+1. **❌ Don't start with notebooks**
+   - Avoid putting core logic in notebooks
+   - Don't embed configuration in code
+   - Don't mix interface and implementation
+
+2. **❌ Don't skip documentation**
+   - Don't start coding without reading DESIGN.md
+   - Don't ignore project standards
+   - Don't postpone writing tests
+
+3. **❌ Don't mix concerns**
+   - Don't combine interface and business logic
+   - Don't embed templates in code
+   - Don't bypass the project structure
+
+## Verification Checklist
+
+Before proceeding with development:
+
+- [ ] Read all documentation
+- [ ] Set up development environment
+- [ ] Create proper directory structure
+- [ ] Set up testing infrastructure
+- [ ] Implement core modules with typing
+- [ ] Create thin interface layer last
+
+## Examples
+
+### ✅ Good: Proper Module Organization
+
+```python
+# src/package_name/models.py
+from pydantic import BaseModel
+
+class Config(BaseModel):
+    setting: str
+```
+
+```python
+# notebooks/interface.ipynb
+from package_name.models import Config
+from package_name.service import process
+```
+
+### ❌ Bad: Everything in Notebook
+
+```python
+# notebook.ipynb
+class Config:  # Missing type hints, validation
+    def __init__(self, setting):
+        self.setting = setting
+```
+
+## References
+
+- Project's DESIGN.md
+- README.md setup instructions
+- Pydantic documentation
+- pytest documentation 

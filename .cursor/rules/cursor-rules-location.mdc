@@ -67,6 +67,18 @@ actions:
          - Failing to verify the correct file path before making changes
          - Rewriting the entire rule instead of modifying specific content
 
+      7. **Rule Formatting Standards:**
+         - Use exact YAML frontmatter format with three dashes above and below
+         - Keep descriptions lowercase and concise
+         - Use simple glob patterns (e.g., *.mdc) rather than complex ones
+         - Structure rules as self-contained markdown documents
+         - Include clear examples and use cases
+         - Use consistent heading levels throughout the document
+         - Maintain clean, readable formatting with proper spacing
+         - Avoid overly complex configurations unless necessary
+         - Follow existing rule templates for consistency
+         - Keep rule content focused and specific to its purpose
+
 examples:
   - input: |
       # Bad: Rule file in wrong location

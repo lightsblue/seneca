@@ -34,4 +34,13 @@ To get up and running with this project, follow these steps:
      pytest tests/
      ```
 
+4. **Working with Notebooks**:
+   - The project uses `jupytext` to maintain notebooks in both `.py` and `.ipynb` formats
+   - To convert a Python script to a notebook:
+     ```bash
+     jupytext --to notebook notebooks/translate_letter.py
+     ```
+   - This will create/update the corresponding `.ipynb` file while preserving the notebook structure
+   - Note: Always edit the `.py` files directly and convert to `.ipynb` to ensure version control compatibility
+
 These steps will set up your development environment and ensure that the project is ready for development and testing.

@@ -1,0 +1,7 @@
+pydantic
+pytest
+openai
+bs4
+requests
+fpdf
+ebooklib 

@@ -1,8 +1,38 @@
 from typing import List, Optional
 import os
+import logging
+import json
 from openai import OpenAI
+import httpx
 from ..models import Letter, ParagraphData
 from ..text.utils import split_paragraphs, split_text_with_quotes, clean_translation
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+http_logger = logging.getLogger(f"{__name__}.http")
+
+# Define request and response hooks for logging
+def log_request(request):
+    method = request.method
+    url = str(request.url)
+    http_logger.debug(f"OpenAI Request: {method} {url}")
+    
+    # Log the request body
+    if request.content:
+        try:
+            body = request.content.decode("utf-8")
+            # Try to parse and pretty-print if it's JSON
+            try:
+                json_body = json.loads(body)
+                http_logger.debug(f"Request body: {json.dumps(json_body, indent=2)}")
+            except json.JSONDecodeError:
+                http_logger.debug(f"Request body: {body}")
+        except Exception as e:
+            http_logger.debug(f"Could not decode request body: {e}")
+
+def log_response(response):
+    http_logger.debug(f"OpenAI Response: HTTP {response.status_code}")
 
 class TranslationOrchestrator:
     """
@@ -12,7 +42,7 @@ class TranslationOrchestrator:
     2. Rhetorical rewrite for modern clarity while maintaining philosophical precision
     """
 
-    def __init__(self, model: str = "gpt-4", max_context: int = 2):
+    def __init__(self, model: str = "gpt-4o", max_context: int = 2):
         """
         Initialize the orchestrator with configuration.
 
@@ -20,10 +50,19 @@ class TranslationOrchestrator:
             model: The OpenAI model to use for translation
             max_context: Number of previous exchanges to include for context
         """
-        self.client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+        # Create a client with our logging hooks
+        event_hooks = {"request": [log_request], "response": [log_response]}
+        http_client = httpx.Client(event_hooks=event_hooks)
+        
+        self.client = OpenAI(
+            api_key=os.getenv("OPENAI_API_KEY"),
+            http_client=http_client
+        )
+        
         self.model = model
         self.max_context = max_context
         self._load_prompts()
+        logger.info(f"TranslationOrchestrator initialized with model={model}, max_context={max_context}")
 
     def _load_prompts(self) -> None:
         """Load prompt templates from files."""
@@ -64,16 +103,30 @@ class TranslationOrchestrator:
         else:
             messages = conversation_history
 
-        completion = self.client.chat.completions.create(
-            model=self.model,
-            messages=messages,
-            temperature=0.7
-        )
+        logger.info(f"Making API request to {self.model} with {len(messages)} messages")
         
-        reply = completion.choices[0].message.content.strip()
-        conversation_history.append({"role": "assistant", "content": reply})
-        
-        return clean_translation(reply), conversation_history
+        try:
+            completion = self.client.chat.completions.create(
+                model=self.model,
+                messages=messages,
+                temperature=0.7
+            )
+            
+            reply = completion.choices[0].message.content.strip()
+            conversation_history.append({"role": "assistant", "content": reply})
+            
+            # Log the response body now that we've successfully used it
+            if http_logger.isEnabledFor(logging.DEBUG):
+                try:
+                    http_logger.debug(f"Response content: {json.dumps(completion.model_dump(), indent=2)}")
+                except Exception as e:
+                    http_logger.debug(f"Could not log response content: {e}")
+            
+            logger.info(f"API request completed, received {len(reply)} characters")
+            return clean_translation(reply), conversation_history
+        except Exception as e:
+            logger.error(f"API request failed: {str(e)}")
+            raise
 
     def translate_direct(self, text: str) -> str:
         """

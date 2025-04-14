@@ -10,12 +10,46 @@ import os
 import requests
 from bs4 import BeautifulSoup
 from typing import List
+import logging
+
+# Configure logging to display in the notebook
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+
+# Create logger for this notebook
+logger = logging.getLogger('translate_letter')
+logger.setLevel(logging.INFO)
+
+# Function to enable detailed OpenAI API request logging
+def enable_openai_debug_logs():
+    # Enable HTTP request/response logging
+    http_logger = logging.getLogger('latin_translator.service.orchestrator.http')
+    http_logger.setLevel(logging.DEBUG)
+    
+    # Enable general orchestrator logging
+    orchestrator_logger = logging.getLogger('latin_translator.service.orchestrator')
+    orchestrator_logger.setLevel(logging.DEBUG)
+    
+    logger.info("OpenAI debug logging enabled - you'll see detailed HTTP request and response information")
+
+# Function to disable detailed logging
+def disable_openai_debug_logs():
+    logging.getLogger('latin_translator.service.orchestrator.http').setLevel(logging.WARNING)
+    logging.getLogger('latin_translator.service.orchestrator').setLevel(logging.INFO)
+    logger.info("OpenAI debug logging disabled")
+
+# %%
+# Uncomment the line below to enable detailed OpenAI API request logging
+#enable_openai_debug_logs()
 
 # Load .env file from project root
 load_dotenv()
 
 # Verify API key is loaded
 if not os.getenv("OPENAI_API_KEY"):
+    logger.error("OPENAI_API_KEY not found in environment variables")
     raise ValueError("OPENAI_API_KEY not found in environment variables. Please check your .env file.")
 
 # %%
@@ -28,7 +62,7 @@ import latin_translator.service.translation
 def reload_modules():
     importlib.reload(latin_translator.service.orchestrator)
     importlib.reload(latin_translator.service.translation)
-    print("Modules reloaded successfully")
+    logger.info("Modules reloaded successfully")
 
 # Run this cell after making changes to core modules
 reload_modules()

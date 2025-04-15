@@ -18,6 +18,9 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 
+# Set the log level for the 'httpx' logger to WARNING immediately after importing logging
+logging.getLogger('httpx').setLevel(logging.WARNING)
+
 # Create logger for this notebook
 logger = logging.getLogger('translate_letter')
 logger.setLevel(logging.INFO)
@@ -204,5 +207,4 @@ translation = translation_service.translate_letter(letter)
 
 # Display the translation
 translated_text = "\n\n".join([" ".join(para["sentences"]) for para in translation])
-display(Markdown(f"**Translation:**\n\n{translated_text}")) 
-# %%
+display(Markdown(f"**Translation:**\n\n{translated_text}"))

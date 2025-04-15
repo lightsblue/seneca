@@ -122,7 +122,7 @@ class TranslationOrchestrator:
                 except Exception as e:
                     http_logger.debug(f"Could not log response content: {e}")
             
-            logger.info(f"API request completed, received {len(reply)} characters")
+            logger.debug(f"API request completed, received {len(reply)} characters")
             return clean_translation(reply), conversation_history
         except Exception as e:
             logger.error(f"API request failed: {str(e)}")

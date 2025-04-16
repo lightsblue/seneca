@@ -5,7 +5,7 @@ import json
 from openai import OpenAI
 import httpx
 from ..models import Letter, ParagraphData
-from ..text.utils import split_paragraphs, split_text_with_quotes, clean_translation
+from ..utils import split_paragraphs, split_text_with_quotes, clean_translation
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')

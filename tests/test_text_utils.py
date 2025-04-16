@@ -1,4 +1,10 @@
-from latin_translator.text.utils import split_paragraphs, split_text_with_quotes, split_naive_sentences, extract_outer_quoted_parts, clean_translation
+from latin_translator.utils import (
+    split_paragraphs,
+    split_text_with_quotes,
+    split_naive_sentences,
+    extract_outer_quoted_parts,
+    clean_translation
+)
 import pytest
 
 

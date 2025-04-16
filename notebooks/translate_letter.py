@@ -5,44 +5,25 @@
 
 # %%
 # Load environment variables
+# Load environment variables
 from dotenv import load_dotenv
 import os
 import requests
 from bs4 import BeautifulSoup
 from typing import List
-import logging
-from latin_translator.service.seneca_letter_downloader import SenecaLetterDownloader
+from latin_translator.utils.logging_config import LoggingManager
 
-# Configure logging to display in the notebook
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+# Initialize logging
+logging_manager = LoggingManager()
+logging_manager.configure_base_logging()
+logger = logging_manager.get_notebook_logger('translate_letter')
 
-# Set the log level for the 'httpx' logger to WARNING immediately after importing logging
-logging.getLogger('httpx').setLevel(logging.WARNING)
-
-# Create logger for this notebook
-logger = logging.getLogger('translate_letter')
-logger.setLevel(logging.INFO)
-
-# Function to enable detailed OpenAI API request logging
+# Convenience functions for OpenAI logging
 def enable_openai_debug_logs():
-    # Enable HTTP request/response logging
-    http_logger = logging.getLogger('latin_translator.service.orchestrator.http')
-    http_logger.setLevel(logging.DEBUG)
-    
-    # Enable general orchestrator logging
-    orchestrator_logger = logging.getLogger('latin_translator.service.orchestrator')
-    orchestrator_logger.setLevel(logging.DEBUG)
-    
-    logger.info("OpenAI debug logging enabled - you'll see detailed HTTP request and response information")
+    logging_manager.configure_openai_logging(enable=True)
 
-# Function to disable detailed logging
 def disable_openai_debug_logs():
-    logging.getLogger('latin_translator.service.orchestrator.http').setLevel(logging.WARNING)
-    logging.getLogger('latin_translator.service.orchestrator').setLevel(logging.INFO)
-    logger.info("OpenAI debug logging disabled")
+    logging_manager.configure_openai_logging(enable=False)
 
 # %%
 # Uncomment the line below to enable detailed OpenAI API request logging
@@ -75,6 +56,7 @@ reload_modules()
 from latin_translator.models import Letter
 from latin_translator.service.translation import TranslationService
 from latin_translator.service.orchestrator import TranslationOrchestrator
+from latin_translator.service.seneca_letter_downloader import SenecaLetterDownloader
 from IPython.display import display, Markdown
 
 # %%

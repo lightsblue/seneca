@@ -31,7 +31,7 @@ To get up and running with this project, follow these steps:
 3. **Run Tests**:
    - Use `pytest` to run the tests and ensure everything is working correctly:
      ```bash
-     pytest tests/
+     pytest
      ```
 
 4. **Working with Notebooks**:

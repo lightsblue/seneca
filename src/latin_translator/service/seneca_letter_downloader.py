@@ -1,7 +1,10 @@
 from typing import List, Optional
 import requests
 from bs4 import BeautifulSoup
+import logging
 from ..models import Letter
+
+logger = logging.getLogger(__name__)
 
 class SenecaLetterDownloader:
     DEFAULT_URLS = [
@@ -29,13 +32,13 @@ class SenecaLetterDownloader:
         """Download and extract all of Seneca's letters from the configured URLs."""
         all_letters: List[Letter] = []
         for url in self.urls:
-            print(f"Processing {url}")
+            logger.info(f"Processing {url}")
             try:
                 content = self.download_content(url)
                 letters = self.extract_letters(content)
                 all_letters.extend(letters)
             except Exception as e:
-                print(f"An error occurred while processing {url}: {e}")
+                logger.error(f"An error occurred while processing {url}: {e}")
         return all_letters
 
     def fetch_letters_from_url(self, url: str) -> List[Letter]:

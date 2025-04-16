@@ -2,9 +2,7 @@
 # # Letter Translation Interface
 # 
 # This notebook provides a simple interface for translating Seneca's letters using our translation system.
-
 # %%
-# Load environment variables
 # Load environment variables
 from dotenv import load_dotenv
 import os
@@ -16,25 +14,17 @@ from latin_translator.utils.logging_config import LoggingManager
 # Initialize logging
 logging_manager = LoggingManager()
 logging_manager.configure_base_logging()
-logger = logging_manager.get_notebook_logger('translate_letter')
 
-# Convenience functions for OpenAI logging
-def enable_openai_debug_logs():
-    logging_manager.configure_openai_logging(enable=True)
-
-def disable_openai_debug_logs():
-    logging_manager.configure_openai_logging(enable=False)
-
-# %%
 # Uncomment the line below to enable detailed OpenAI API request logging
-#enable_openai_debug_logs()
+#logging_manager.configure_openai_logging(enable=True)
 
+logger = logging_manager.get_notebook_logger('translate_letter')
+# %%
 # Load .env file from project root
 load_dotenv()
 
 # Verify API key is loaded
 if not os.getenv("OPENAI_API_KEY"):
-    logger.error("OPENAI_API_KEY not found in environment variables")
     raise ValueError("OPENAI_API_KEY not found in environment variables. Please check your .env file.")
 
 # %%
@@ -77,4 +67,3 @@ translation = translation_service.translate_letter(letter)
 # Display the translation
 translated_text = "\n\n".join([" ".join(para["sentences"]) for para in translation])
 display(Markdown(f"**Translation:**\n\n{translated_text}"))
-# %%

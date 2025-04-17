@@ -76,17 +76,22 @@ from datetime import datetime
 # Create an EPUB with multiple letters and custom configuration
 logger.info("Creating multi-letter EPUB with custom configuration")
 timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-custom_config = EpubConfig(
-    title_template=f"Letters of Seneca - {timestamp}",
-    author="Lucius Annaeus Seneca"
-)
 
 # Get first three letters
-letters_to_include = all_letters[:2]
+letters_to_include = all_letters[77:80]  # Letters are 0-indexed, so letter 77 is at index 76
 logger.info(f"Including {len(letters_to_include)} letters in the EPUB")
+
+# Get letter range for title
+letter_range = f"Letters {letters_to_include[0].number}-{letters_to_include[-1].number}"
 
 # Initialize translation service
 translation_service = TranslationService(TranslationOrchestrator())
+
+# Create builder with custom config
+custom_config = EpubConfig(
+    title_template=f"Letters of Seneca ({letter_range}) - {timestamp}",
+    author="Lucius Annaeus Seneca"
+)
 
 # Create builder with custom config
 builder = EpubBuilder(config=custom_config)

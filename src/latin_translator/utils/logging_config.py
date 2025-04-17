@@ -28,10 +28,7 @@ class LoggingManager:
             level: The base logging level to use. Defaults to INFO.
         """
         if not self._configured:
-            logging.basicConfig(
-                level=level,
-                format=self._base_format
-            )
+            # Removed basicConfig to use global configuration
             # Set third-party loggers to WARNING to reduce noise
             logging.getLogger('httpx').setLevel(logging.WARNING)
             self._configured = True

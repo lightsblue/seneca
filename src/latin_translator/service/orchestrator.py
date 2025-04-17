@@ -8,7 +8,7 @@ from ..models import Letter, ParagraphData
 from ..utils import split_paragraphs, split_text_with_quotes, clean_translation
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+# Removed basicConfig to use global configuration
 logger = logging.getLogger(__name__)
 http_logger = logging.getLogger(f"{__name__}.http")
 
@@ -69,10 +69,13 @@ class TranslationOrchestrator:
         base_path = os.path.dirname(os.path.dirname(__file__))
         prompt_path = os.path.join(base_path, "prompts")
         
-        with open(os.path.join(prompt_path, "translate.v1.txt")) as f:
+        # Fix: These files were loaded with swapped names
+        # rewrite.v1.txt contains the Latin->English translation prompt
+        # translate.v1.txt contains the English->Modern English prompt
+        with open(os.path.join(prompt_path, "rewrite.v1.txt")) as f:
             self.direct_prompt = f.read()
         
-        with open(os.path.join(prompt_path, "rewrite.v1.txt")) as f:
+        with open(os.path.join(prompt_path, "translate.v1.txt")) as f:
             self.rewrite_prompt = f.read()
 
     def translate_chunk(

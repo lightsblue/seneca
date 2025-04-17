@@ -29,9 +29,17 @@ To get up and running with this project, follow these steps:
      ```
 
 3. **Run Tests**:
-   - Use `pytest` to run the tests and ensure everything is working correctly:
+   - Basic test run:
      ```bash
      pytest
+     ```
+   - Run a specific test:
+     ```bash
+     pytest tests/test_integration.py
+     ```
+   - Run with detailed logging:
+     ```bash
+     pytest --log-cli-level=DEBUG
      ```
 
 4. **Working with Notebooks**:

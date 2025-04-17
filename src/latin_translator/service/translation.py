@@ -7,4 +7,4 @@ class TranslationService:
         self.orchestrator = orchestrator
 
     def translate_letter(self, letter: Letter) -> List[ParagraphData]:
-        return self.orchestrator.process_letter(letter) 
+        return self.orchestrator.process_letter(letter)

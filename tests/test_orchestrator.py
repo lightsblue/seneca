@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import Mock, patch
-from latin_translator.models import Letter
+from latin_translator.models import Letter, TranslationStages
 from latin_translator.service.orchestrator import TranslationOrchestrator
 
 
@@ -16,6 +16,9 @@ def test_process_letter():
         result = orchestrator.process_letter(letter)
 
     assert len(result) == 1
-    assert result[0]["paragraph_index"] == 1
-    assert result[0]["sentences"] == ["Translated sentence."]
-    mock_client.chat.completions.create.assert_called()
+    assert isinstance(result[0], TranslationStages)
+    assert result[0].paragraph_index == 1
+    assert result[0].original == ["Lorem ipsum dolor sit amet."]
+    assert result[0].direct == ["Translated sentence."]
+    assert result[0].rhetorical == ["Translated sentence."]
+    assert mock_client.chat.completions.create.call_count == 2  # Once for direct, once for rhetorical

@@ -3,6 +3,7 @@ from pathlib import Path
 from latin_translator.utils.mock_letter_source import MockLetterSource
 from latin_translator.service.translation import TranslationService
 from latin_translator.service.orchestrator import TranslationOrchestrator
+from latin_translator.models import TranslationStages
 import os
 import logging
 import sys
@@ -33,7 +34,7 @@ def verify_is_english(text, logger=None):
     return True
 
 @pytest.mark.integration
-def test_full_translation_flow(tmp_path):
+def test_full_translation_flow(tmp_path, capsys):
     """Test the full flow from loading mock letters through translation."""
     # Set up logging
     logger = logging.getLogger(__name__)
@@ -68,12 +69,14 @@ def test_full_translation_flow(tmp_path):
     logger.info("Starting translation of first letter")
     translation1 = translation_service.translate_letter(letter1)
     assert len(translation1) == 1  # One paragraph
-    assert all("sentences" in para for para in translation1)
-    assert all(len(para["sentences"]) > 0 for para in translation1)
+    assert all(isinstance(para, TranslationStages) for para in translation1)
+    assert all(len(para.original) > 0 for para in translation1)
+    assert all(len(para.direct) > 0 for para in translation1)
+    assert all(len(para.rhetorical) > 0 for para in translation1)
     logger.info(f"Successfully translated letter 1 ({len(translation1)} paragraphs)")
     
     # Log sample of first translation
-    translated_text1 = "\n\n".join([" ".join(para["sentences"]) for para in translation1])
+    translated_text1 = "\n\n".join([" ".join(para.rhetorical) for para in translation1])
     logger.info("Sample of letter 1 translation:")
     logger.info(translated_text1[:200] + "..." if len(translated_text1) > 200 else translated_text1)
     
@@ -91,12 +94,14 @@ def test_full_translation_flow(tmp_path):
     logger.info("Starting translation of second letter")
     translation2 = translation_service.translate_letter(letter2)
     assert len(translation2) == 1  # One paragraph
-    assert all("sentences" in para for para in translation2)
-    assert all(len(para["sentences"]) > 0 for para in translation2)
+    assert all(isinstance(para, TranslationStages) for para in translation2)
+    assert all(len(para.original) > 0 for para in translation2)
+    assert all(len(para.direct) > 0 for para in translation2)
+    assert all(len(para.rhetorical) > 0 for para in translation2)
     logger.info(f"Successfully translated letter 2 ({len(translation2)} paragraphs)")
     
     # Log sample of second translation
-    translated_text2 = "\n\n".join([" ".join(para["sentences"]) for para in translation2])
+    translated_text2 = "\n\n".join([" ".join(para.rhetorical) for para in translation2])
     logger.info("Sample of letter 2 translation:")
     logger.info(translated_text2[:200] + "..." if len(translated_text2) > 200 else translated_text2)
     
@@ -143,11 +148,13 @@ def test_single_letter_translation():
     translation = translation_service.translate_letter(letter1)
     assert translation is not None
     assert len(translation) > 0
-    assert all("sentences" in para for para in translation)
-    assert all(len(para["sentences"]) > 0 for para in translation)
+    assert all(isinstance(para, TranslationStages) for para in translation)
+    assert all(len(para.original) > 0 for para in translation)
+    assert all(len(para.direct) > 0 for para in translation)
+    assert all(len(para.rhetorical) > 0 for para in translation)
     
     # Log the translation result
-    translated_text = "\n\n".join([" ".join(para["sentences"]) for para in translation])
+    translated_text = "\n\n".join([" ".join(para.rhetorical) for para in translation])
     logger.info("English translation:")
     logger.info(translated_text)
     

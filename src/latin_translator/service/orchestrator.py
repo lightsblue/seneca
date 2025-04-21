@@ -4,7 +4,7 @@ import logging
 import json
 from openai import OpenAI
 import httpx
-from ..models import Letter, ParagraphData
+from ..models import Letter, TranslationStages
 from ..utils import split_paragraphs, split_text_with_quotes, clean_translation
 
 # Configure logging
@@ -185,7 +185,7 @@ class TranslationOrchestrator:
         
         return "\n\n".join(final_paragraphs)
 
-    def process_letter(self, letter: Letter) -> List[ParagraphData]:
+    def process_letter(self, letter: Letter) -> List[TranslationStages]:
         """
         Process a complete letter through both translation phases.
         
@@ -193,23 +193,44 @@ class TranslationOrchestrator:
             letter: The letter to translate
             
         Returns:
-            List of translated paragraphs with their sentences
+            List of TranslationStages containing original, direct, and rhetorical translations
         """
-        # First phase: Direct translation
-        direct_translation = self.translate_direct(letter.content)
+        # Split original text into paragraphs and sentences
+        original_paragraphs = split_paragraphs(letter.content)
+        result: List[TranslationStages] = []
         
-        # Second phase: Rhetorical rewrite
-        final_translation = self.translate_rhetorical(direct_translation)
-        
-        # Convert to paragraph data structure
-        paragraphs = split_paragraphs(final_translation)
-        result: List[ParagraphData] = []
-        
-        for idx, paragraph in enumerate(paragraphs, start=1):
-            sentences = split_text_with_quotes(paragraph)
-            result.append({
-                "paragraph_index": idx,
-                "sentences": sentences
-            })
+        for idx, original_paragraph in enumerate(original_paragraphs, start=1):
+            # Split into sentences
+            original_sentences = split_text_with_quotes(original_paragraph)
+            
+            # First phase: Direct translation
+            direct_sentences = []
+            conversation_history = None
+            for sentence in original_sentences:
+                translation, conversation_history = self.translate_chunk(
+                    sentence,
+                    self.direct_prompt,
+                    conversation_history
+                )
+                direct_sentences.append(translation)
+            
+            # Second phase: Rhetorical translation
+            rhetorical_sentences = []
+            conversation_history = None
+            for sentence in direct_sentences:
+                translation, conversation_history = self.translate_chunk(
+                    sentence,
+                    self.rewrite_prompt,
+                    conversation_history
+                )
+                rhetorical_sentences.append(translation)
+            
+            # Create TranslationStages for this paragraph
+            result.append(TranslationStages(
+                paragraph_index=idx,
+                original=original_sentences,
+                direct=direct_sentences,
+                rhetorical=rhetorical_sentences
+            ))
         
         return result 

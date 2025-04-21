@@ -2,6 +2,7 @@ from typing import List, Optional, Dict
 import requests
 from bs4 import BeautifulSoup
 import logging
+import re
 from ..models import Letter
 
 logger = logging.getLogger(__name__)
@@ -82,6 +83,41 @@ class SenecaLetterDownloader:
                 prev_value = value
         return result
 
+    @staticmethod
+    def _parse_sections(content: str) -> Dict[int, str]:
+        """Parse content into sections based on [n] markers."""
+        sections = {}
+        # Split by '[num]' but keep the delimiter. Capture group does this.
+        parts = re.split(r'(\[\d+\])', content)
+
+        # Handle potential empty string at the beginning if content starts with a marker
+        if parts and parts[0] == '':
+            parts = parts[1:]
+
+        current_section_num = None
+        current_section_content = []
+
+        for part in parts:
+            match = re.match(r'\[(\d+)\]', part)
+            if match:
+                # Found a section marker. Store the previous section if exists.
+                if current_section_num is not None:
+                    sections[current_section_num] = "".join(current_section_content)
+                
+                # Start the new section
+                current_section_num = int(match.group(1))
+                current_section_content = [part] # Include the marker itself
+            elif current_section_num is not None:
+                # Append text part to the current section
+                current_section_content.append(part)
+            # Ignore text before the first marker, if any
+
+        # Store the last parsed section
+        if current_section_num is not None:
+            sections[current_section_num] = "".join(current_section_content)
+
+        return sections
+
     @classmethod
     def extract_letters(cls, content: str) -> List[Letter]:
         soup = BeautifulSoup(content, 'html.parser')
@@ -90,20 +126,25 @@ class SenecaLetterDownloader:
         current_letter_number = None
         current_letter_roman = None
         current_letter_title = None
-        current_letter_content: List[str] = []
+        current_letter_content_parts: List[str] = [] # Changed name for clarity
         collecting = False
 
         for tag in body.find_all('p'):
             b_tag = tag.find('b')
             if b_tag:
+                # If we were collecting a previous letter, finalize and add it
                 if current_letter_number is not None:
+                    full_content = '\n'.join(current_letter_content_parts).strip()
+                    parsed_sections = cls._parse_sections(full_content)
                     letters.append(Letter(
                         number=current_letter_number,
                         roman=current_letter_roman,
                         title=current_letter_title or "",
-                        content='\n'.join(current_letter_content).strip()
+                        content=full_content,
+                        sections=parsed_sections # Pass parsed sections
                     ))
 
+                # Start processing the new letter found
                 title_text = b_tag.get_text(strip=True)
                 parts = title_text.split('.', 1)
                 if len(parts) == 2:
@@ -114,35 +155,47 @@ class SenecaLetterDownloader:
                         current_letter_number = number
                         current_letter_roman = roman_part
                         current_letter_title = title_remainder
-                        current_letter_content = []
+                        current_letter_content_parts = [] # Reset content parts
                         collecting = True
                     except ValueError:
+                        # Handle cases where the bold text is not a valid letter start
                         collecting = False
                         current_letter_number = None
                         current_letter_title = None
                 else:
+                    # Title format doesn't match expected pattern
                     collecting = False
             elif tag.get('class') and 'shortborder' in tag.get('class'):
+                # End of a letter indicated by a border
                 if current_letter_number is not None:
+                    full_content = '\n'.join(current_letter_content_parts).strip()
+                    parsed_sections = cls._parse_sections(full_content)
                     letters.append(Letter(
                         number=current_letter_number,
                         roman=current_letter_roman,
                         title=current_letter_title or "",
-                        content='\n'.join(current_letter_content).strip()
+                        content=full_content,
+                        sections=parsed_sections # Pass parsed sections
                     ))
+                # Reset state after the border
                 current_letter_number = None
                 current_letter_title = None
-                current_letter_content = []
+                current_letter_content_parts = []
                 collecting = False
             elif collecting:
-                current_letter_content.append(tag.get_text())
+                # Append the text content of the paragraph
+                current_letter_content_parts.append(tag.get_text())
 
-        if current_letter_number is not None and current_letter_content:
+        # Add the last letter if one was being processed
+        if current_letter_number is not None and current_letter_content_parts:
+            full_content = '\n'.join(current_letter_content_parts).strip()
+            parsed_sections = cls._parse_sections(full_content)
             letters.append(Letter(
                 number=current_letter_number,
                 roman=current_letter_roman,
                 title=current_letter_title or "",
-                content='\n'.join(current_letter_content).strip()
+                content=full_content,
+                sections=parsed_sections # Pass parsed sections
             ))
 
         return letters

@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Dict
 from pydantic import BaseModel
 
 class Letter(BaseModel):
@@ -6,7 +6,8 @@ class Letter(BaseModel):
     number: int
     roman: str
     title: str
-    content: str
+    content: str  # Full original content
+    sections: Dict[int, str] = {} # Added: Parsed sections like [1], [2]
 
 class TranslationStages(BaseModel):
     """Represents the three stages of translation for a paragraph."""

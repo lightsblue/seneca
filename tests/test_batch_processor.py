@@ -2,6 +2,7 @@ import pytest
 from unittest.mock import Mock
 from latin_translator.models import Letter
 from latin_translator.service.batch import BatchProcessor
+from latin_translator.service.letter_translator import LetterTranslator
 
 
 def test_process_letters():

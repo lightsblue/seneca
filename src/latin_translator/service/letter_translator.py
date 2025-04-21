@@ -34,7 +34,7 @@ def log_request(request):
 def log_response(response):
     http_logger.debug(f"OpenAI Response: HTTP {response.status_code}")
 
-class TranslationOrchestrator:
+class LetterTranslator:
     """
     Coordinates the translation process using AI providers and text processing utilities.
     Follows the two-phase translation approach:
@@ -62,7 +62,7 @@ class TranslationOrchestrator:
         self.model = model
         self.max_context = max_context
         self._load_prompts()
-        logger.info(f"TranslationOrchestrator initialized with model={model}, max_context={max_context}")
+        logger.info(f"LetterTranslator initialized with model={model}, max_context={max_context}")
 
     def _load_prompts(self) -> None:
         """Load prompt templates from files."""

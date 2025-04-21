@@ -1,9 +1,9 @@
 from typing import List
 from ..models import Letter, TranslationStages
-from .orchestrator import TranslationOrchestrator
+from .letter_translator import LetterTranslator
 
 class BatchProcessor:
-    def __init__(self, orchestrator: TranslationOrchestrator):
+    def __init__(self, orchestrator: LetterTranslator):
         self.orchestrator = orchestrator
 
     def process_letters(self, letters: List[Letter]) -> List[List[TranslationStages]]:

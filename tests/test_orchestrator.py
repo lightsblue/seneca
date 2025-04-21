@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import Mock, patch
 from latin_translator.models import Letter, TranslationStages
-from latin_translator.service.orchestrator import TranslationOrchestrator
+from latin_translator.service.letter_translator import LetterTranslator
 
 
 def test_process_letter():
@@ -10,10 +10,10 @@ def test_process_letter():
     mock_client = Mock()
     mock_client.chat.completions.create.return_value = mock_completion
 
-    with patch("latin_translator.service.orchestrator.OpenAI", return_value=mock_client):
-        orchestrator = TranslationOrchestrator()
+    with patch("latin_translator.service.letter_translator.OpenAI", return_value=mock_client):
+        translator = LetterTranslator()
         letter = Letter(number=1, roman="I", title="Test Title", content="Lorem ipsum dolor sit amet.")
-        result = orchestrator.process_letter(letter)
+        result = translator.process_letter(letter)
 
     assert len(result) == 1
     assert isinstance(result[0], TranslationStages)

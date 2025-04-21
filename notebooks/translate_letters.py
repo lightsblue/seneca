@@ -11,8 +11,7 @@ from bs4 import BeautifulSoup
 from typing import List
 import logging
 from latin_translator.models import Letter, TranslationStages
-from latin_translator.service.translation import TranslationService
-from latin_translator.service.orchestrator import TranslationOrchestrator
+from latin_translator.service.letter_translator import LetterTranslator
 
 # Initialize logging
 logging.basicConfig(
@@ -26,8 +25,8 @@ logging.getLogger('httpx').setLevel(logging.WARNING)
 
 # Optionally enable OpenAI debug logging
 # Uncomment to enable detailed request logging
-# logging.getLogger('latin_translator.service.orchestrator.http').setLevel(logging.DEBUG)
-# logging.getLogger('latin_translator.service.orchestrator').setLevel(logging.DEBUG)
+# logging.getLogger('latin_translator.service.letter_translator.http').setLevel(logging.DEBUG)
+# logging.getLogger('latin_translator.service.letter_translator').setLevel(logging.DEBUG)
 # %%
 # Load .env file from project root
 load_dotenv()
@@ -39,13 +38,13 @@ if not os.getenv("OPENAI_API_KEY"):
 # %%
 # Import reload to refresh modules after code changes
 import importlib
-import latin_translator.service.orchestrator
-import latin_translator.service.translation
+import latin_translator.service.letter_translator
+# import latin_translator.service.translation # Keep this removed
 
 # Function to reload modules after changes
 #def reload_modules():
-#    importlib.reload(latin_translator.service.orchestrator)
-#    importlib.reload(latin_translator.service.translation)
+#    importlib.reload(latin_translator.service.letter_translator) # Updated reload
+#    # importlib.reload(latin_translator.service.translation) # Remove reload
 #    logger.info("Modules reloaded successfully")
 
 # Run this cell after making changes to core modules
@@ -53,8 +52,7 @@ import latin_translator.service.translation
 
 # %%
 from latin_translator.models import Letter
-from latin_translator.service.translation import TranslationService
-from latin_translator.service.orchestrator import TranslationOrchestrator
+from latin_translator.service.letter_translator import LetterTranslator
 from latin_translator.service.seneca_letter_downloader import SenecaLetterDownloader
 from IPython.display import display, Markdown
 
@@ -81,7 +79,7 @@ letter_range = f"Letters {letters_to_include[0].number}-{letters_to_include[-1].
 logger.info(f"Including {len(letters_to_include)} letters in the EPUB: {letter_range}")
 # %%
 # Initialize translation service
-translation_service = TranslationService(TranslationOrchestrator())
+translator = LetterTranslator()
 
 # Create builder with custom config
 custom_config = EpubConfig(
@@ -96,7 +94,7 @@ builder = EpubBuilder(config=custom_config)
 for letter_to_add in letters_to_include:
     # Translate the letter
     logger.info(f"Translating letter {letter_to_add.roman} for EPUB")
-    translation_stages = translation_service.translate_letter(letter_to_add)
+    translation_stages = translator.process_letter(letter_to_add)
     # Use the rhetorical translation for the EPUB
     translated_text = "\n\n".join([" ".join(stage.rhetorical) for stage in translation_stages])
     

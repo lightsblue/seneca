@@ -1,8 +1,7 @@
 import pytest
 from pathlib import Path
 from latin_translator.utils.mock_letter_source import MockLetterSource
-from latin_translator.service.translation import TranslationService
-from latin_translator.service.orchestrator import TranslationOrchestrator
+from latin_translator.service.letter_translator import LetterTranslator
 from latin_translator.models import TranslationStages
 import os
 import logging
@@ -48,8 +47,7 @@ def test_full_translation_flow(tmp_path, capsys):
     
     # Initialize services using default test data directory
     letter_source = MockLetterSource()
-    orchestrator = TranslationOrchestrator()
-    translation_service = TranslationService(orchestrator)
+    translator = LetterTranslator()
     logger.info("Initialized letter source and translation service")
     
     # Load and translate both letters
@@ -67,7 +65,7 @@ def test_full_translation_flow(tmp_path, capsys):
     
     # Translate first letter
     logger.info("Starting translation of first letter")
-    translation1 = translation_service.translate_letter(letter1)
+    translation1 = translator.process_letter(letter1)
     assert len(translation1) == 1  # One paragraph
     assert all(isinstance(para, TranslationStages) for para in translation1)
     assert all(len(para.original) > 0 for para in translation1)
@@ -92,7 +90,7 @@ def test_full_translation_flow(tmp_path, capsys):
     
     # Translate second letter
     logger.info("Starting translation of second letter")
-    translation2 = translation_service.translate_letter(letter2)
+    translation2 = translator.process_letter(letter2)
     assert len(translation2) == 1  # One paragraph
     assert all(isinstance(para, TranslationStages) for para in translation2)
     assert all(len(para.original) > 0 for para in translation2)
@@ -128,8 +126,7 @@ def test_single_letter_translation():
     
     # Initialize services
     letter_source = MockLetterSource()
-    orchestrator = TranslationOrchestrator()
-    translation_service = TranslationService(orchestrator)
+    translator = LetterTranslator()
     logger.info("Initialized letter source and translation service")
     
     # Load letter_1_head.txt directly
@@ -145,7 +142,7 @@ def test_single_letter_translation():
     
     # Translate the letter
     logger.info("Starting translation")
-    translation = translation_service.translate_letter(letter1)
+    translation = translator.process_letter(letter1)
     assert translation is not None
     assert len(translation) > 0
     assert all(isinstance(para, TranslationStages) for para in translation)

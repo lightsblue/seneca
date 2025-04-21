@@ -11,8 +11,7 @@ from bs4 import BeautifulSoup
 from typing import List
 import logging
 from latin_translator.models import Letter, TranslationStages
-from latin_translator.service.translation import TranslationService
-from latin_translator.service.orchestrator import TranslationOrchestrator
+from latin_translator.service.letter_translator import LetterTranslator
 
 # Initialize logging
 logging.basicConfig(
@@ -26,8 +25,8 @@ logging.getLogger('httpx').setLevel(logging.WARNING)
 
 # Optionally enable OpenAI debug logging
 # Uncomment to enable detailed request logging
-# logging.getLogger('latin_translator.service.orchestrator.http').setLevel(logging.DEBUG)
-# logging.getLogger('latin_translator.service.orchestrator').setLevel(logging.DEBUG)
+# logging.getLogger('latin_translator.service.letter_translator.http').setLevel(logging.DEBUG)
+# logging.getLogger('latin_translator.service.letter_translator').setLevel(logging.DEBUG)
 # %%
 # Load .env file from project root
 load_dotenv()
@@ -39,12 +38,10 @@ if not os.getenv("OPENAI_API_KEY"):
 # %%
 # Import reload to refresh modules after code changes
 import importlib
-import latin_translator.service.orchestrator
-import latin_translator.service.translation
+import latin_translator.service.letter_translator
 # %%
 from latin_translator.models import Letter
-from latin_translator.service.translation import TranslationService
-from latin_translator.service.orchestrator import TranslationOrchestrator
+from latin_translator.service.letter_translator import LetterTranslator
 from latin_translator.service.seneca_letter_downloader import SenecaLetterDownloader
 from IPython.display import display, Markdown
 
@@ -68,11 +65,11 @@ from datetime import datetime
 timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 logger.info(f"Translating letter {letter.roman} ({letter.number}): {letter.title}")
 # %%
-print(letter.content)
+print(letter.sections[6])
 # %%
 # Initialize translation service
-translation_service = TranslationService(TranslationOrchestrator())
-translation_stages = translation_service.translate_letter(letter)
+translator = LetterTranslator()
+translation_stages = translator.process_letter(letter)
 translated_text = "\n\n".join([" ".join(stage.rhetorical) for stage in translation_stages])
 # %%
 logger.info("Displaying translation stages")

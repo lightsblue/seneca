@@ -53,10 +53,10 @@ downloader = SenecaLetterDownloader()  # Uses default URLs
 logger.info("Fetching all letters...")
 all_letters = downloader.fetch_all_letters()
 logger.info(f"Found {len(all_letters)} letters")
-
-# Select a letter by index (e.g., letter 1)
-letter_index = 0  # Change this to select different letters
-letter = all_letters[letter_index]
+# %%
+# Select a letter by number (e.g., letter 77)
+# Change this to select a different letter number
+letter = downloader.get_letter_by_number(77)
 logger.info(f"Selected letter {letter.roman} ({letter.number}): {letter.title}")
 
 # %%
@@ -65,14 +65,13 @@ from pathlib import Path
 from datetime import datetime
 
 # %%
-logger.info("Creating multi-letter EPUB with custom configuration")
 timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-letter = all_letters[letter_index]
-
+logger.info(f"Translating letter {letter.roman} ({letter.number}): {letter.title}")
+# %%
+print(letter.content)
+# %%
 # Initialize translation service
 translation_service = TranslationService(TranslationOrchestrator())
-
-logger.info(f"Translating letter {letter.roman} ({letter.number}): {letter.title}")
 translation_stages = translation_service.translate_letter(letter)
 translated_text = "\n\n".join([" ".join(stage.rhetorical) for stage in translation_stages])
 # %%

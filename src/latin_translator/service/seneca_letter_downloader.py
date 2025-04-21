@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Dict
 import requests
 from bs4 import BeautifulSoup
 import logging
@@ -27,10 +27,12 @@ class SenecaLetterDownloader:
 
     def __init__(self, urls: Optional[List[str]] = None):
         self.urls = urls if urls is not None else self.DEFAULT_URLS
+        self._letters_by_number: Dict[int, Letter] = {}
 
     def fetch_all_letters(self) -> List[Letter]:
         """Download and extract all of Seneca's letters from the configured URLs."""
         all_letters: List[Letter] = []
+        self._letters_by_number = {}
         for url in self.urls:
             logger.info(f"Processing {url}")
             try:
@@ -39,7 +41,18 @@ class SenecaLetterDownloader:
                 all_letters.extend(letters)
             except Exception as e:
                 logger.error(f"An error occurred while processing {url}: {e}")
+
+        for letter in all_letters:
+            self._letters_by_number[letter.number] = letter
+
         return all_letters
+
+    def get_letter_by_number(self, number: int) -> Optional[Letter]:
+        """Retrieve a letter by its number. Returns None if not found."""
+        if not self._letters_by_number:
+            logger.info("Letter index is empty. Fetching all letters first.")
+            self.fetch_all_letters()
+        return self._letters_by_number.get(number)
 
     def fetch_letters_from_url(self, url: str) -> List[Letter]:
         """Download and extract Seneca's letters from a single URL."""

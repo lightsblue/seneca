@@ -94,7 +94,7 @@ builder = EpubBuilder(config=custom_config)
 for letter_to_add in letters_to_include:
     # Translate the letter
     logger.info(f"Translating letter {letter_to_add.roman} for EPUB")
-    translation_stages = translator.process_letter(letter_to_add)
+    translation_stages = translator.process_letter(letter_to_add.content)
     # Use the rhetorical translation for the EPUB
     translated_text = "\n\n".join([" ".join(stage.rhetorical) for stage in translation_stages])
     

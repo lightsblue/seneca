@@ -65,7 +65,7 @@ def test_full_translation_flow(tmp_path, capsys):
     
     # Translate first letter
     logger.info("Starting translation of first letter")
-    translation1 = translator.process_letter(letter1)
+    translation1 = translator.process_letter(letter1.content)
     assert len(translation1) == 1  # One paragraph
     assert all(isinstance(para, TranslationStages) for para in translation1)
     assert all(len(para.original) > 0 for para in translation1)
@@ -90,7 +90,7 @@ def test_full_translation_flow(tmp_path, capsys):
     
     # Translate second letter
     logger.info("Starting translation of second letter")
-    translation2 = translator.process_letter(letter2)
+    translation2 = translator.process_letter(letter2.content)
     assert len(translation2) == 1  # One paragraph
     assert all(isinstance(para, TranslationStages) for para in translation2)
     assert all(len(para.original) > 0 for para in translation2)
@@ -142,7 +142,7 @@ def test_single_letter_translation():
     
     # Translate the letter
     logger.info("Starting translation")
-    translation = translator.process_letter(letter1)
+    translation = translator.process_letter(letter1.content)
     assert translation is not None
     assert len(translation) > 0
     assert all(isinstance(para, TranslationStages) for para in translation)

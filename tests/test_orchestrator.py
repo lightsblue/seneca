@@ -12,13 +12,15 @@ def test_process_letter():
 
     with patch("latin_translator.service.letter_translator.OpenAI", return_value=mock_client):
         translator = LetterTranslator()
-        letter = Letter(number=1, roman="I", title="Test Title", content="Lorem ipsum dolor sit amet.")
-        result = translator.process_letter(letter)
+        
+        # Test with string content
+        text_content = "Lorem ipsum dolor sit amet."
+        result = translator.process_letter(text_content)
 
-    assert len(result) == 1
-    assert isinstance(result[0], TranslationStages)
-    assert result[0].paragraph_index == 1
-    assert result[0].original == ["Lorem ipsum dolor sit amet."]
-    assert result[0].direct == ["Translated sentence."]
-    assert result[0].rhetorical == ["Translated sentence."]
-    assert mock_client.chat.completions.create.call_count == 2  # Once for direct, once for rhetorical
+        assert len(result) == 1
+        assert isinstance(result[0], TranslationStages)
+        assert result[0].paragraph_index == 1
+        assert result[0].original == ["Lorem ipsum dolor sit amet."]
+        assert result[0].direct == ["Translated sentence."]
+        assert result[0].rhetorical == ["Translated sentence."]
+        assert mock_client.chat.completions.create.call_count == 2  # Once for direct, once for rhetorical

@@ -185,18 +185,18 @@ class LetterTranslator:
         
         return "\n\n".join(final_paragraphs)
 
-    def process_letter(self, letter: Letter) -> List[TranslationStages]:
+    def process_letter(self, content: str) -> List[TranslationStages]:
         """
-        Process a complete letter through both translation phases.
+        Process text through both translation phases.
         
         Args:
-            letter: The letter to translate
+            content: The text content to translate
             
         Returns:
             List of TranslationStages containing original, direct, and rhetorical translations
         """
         # Split original text into paragraphs and sentences
-        original_paragraphs = split_paragraphs(letter.content)
+        original_paragraphs = split_paragraphs(content)
         result: List[TranslationStages] = []
         
         for idx, original_paragraph in enumerate(original_paragraphs, start=1):

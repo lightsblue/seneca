@@ -69,7 +69,7 @@ print(letter.sections[6])
 # %%
 # Initialize translation service
 translator = LetterTranslator()
-translation_stages = translator.process_letter(letter)
+translation_stages = translator.process_letter(letter.content)
 translated_text = "\n\n".join([" ".join(stage.rhetorical) for stage in translation_stages])
 # %%
 logger.info("Displaying translation stages")

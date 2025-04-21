@@ -95,6 +95,17 @@ class LetterTranslator:
         Returns:
             Tuple of (translation, updated conversation history)
         """
+        # Handle special case: lone quotation marks or very short (1-2 chars) input
+        # Skip LLM call and preserve them exactly
+        if len(text.strip()) <= 2 and all(char in "'\"" for char in text.strip()):
+            logger.info(f"Detected lone quotation mark: '{text}'. Preserving as is.")
+            if conversation_history is None:
+                conversation_history = [{"role": "system", "content": system_prompt}]
+            # Add a dummy exchange to maintain conversation structure
+            conversation_history.append({"role": "user", "content": text})
+            conversation_history.append({"role": "assistant", "content": text})
+            return text, conversation_history
+        
         if conversation_history is None:
             conversation_history = [{"role": "system", "content": system_prompt}]
         

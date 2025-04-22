@@ -16,7 +16,7 @@ class TestLetterTranslator:
             translator = LetterTranslator()
             # Set prompts directly
             translator.direct_prompt = "Translate Latin to English literally"
-            translator.rewrite_prompt = "Rewrite the English translation"
+            translator.rhetorical_prompt = "Rewrite the English translation"
             return translator
 
     def test_lone_quotation_marks_handling(self, translator):
@@ -101,7 +101,7 @@ Cogita quamdiu iam idem facias: cibus, somnus, libido -- per hunc circulum curri
             # 4 sentences × 2 translation phases, without calling API for lone quote
             assert api_call_count == 8
 
-    def test_demonstration_of_previous_bug(self, translator):
+    def test_demonstration_of_previous_bug(self, translator: LetterTranslator):
         """
         This test demonstrates the previous bug behavior for documentation purposes.
         
@@ -120,7 +120,7 @@ Cogita quamdiu iam idem facias: cibus, somnus, libido -- per hunc circulum curri
             if system_prompt == translator.direct_prompt:
                 if text == "'":  # Direct translation preserves quote
                     return "'", conversation_history or []
-            elif system_prompt == translator.rewrite_prompt:
+            elif system_prompt == translator.rhetorical_prompt:
                 if text == "'":  # Rhetorical translation adds unwanted text
                     return "If you have more text for me to work on or any questions, feel free to share!", conversation_history or []
             

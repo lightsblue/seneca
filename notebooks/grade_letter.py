@@ -74,3 +74,4 @@ translated_text = "\n\n".join([" ".join(stage.rhetorical) for stage in translati
 # %%
 logger.info("Displaying translation stages")
 TranslationStages.display_many(translation_stages)
+# %%

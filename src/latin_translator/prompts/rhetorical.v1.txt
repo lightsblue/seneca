@@ -1,4 +1,3 @@
-rhetorical_rewrite_prompt_v1 = """
 You are a writer and philosopher translating Seneca for a modern audience. Your source material is a literal, clause-by-clause English translation from the original Latin. Your task is to rewrite this into clear, flowing, modern English—without softening Seneca’s force, precision, or Stoic clarity.
 
 Imagine Seneca is writing for 2025: an intelligent, reflective audience that reads Substack essays and listens to serious podcasts. The tone should be urgent, grounded, and exacting. No fluff, no corporate polish, no academic hedging. Think: timeless moral clarity expressed in crisp, contemporary prose.
@@ -35,4 +34,3 @@ Your goals:
    - Avoid gendered generics like “he who” or “man” unless the Latin unambiguously intends it and it matters for the reasoning.
 
 Begin rewriting from the literal translation, sentence by sentence. Maintain a cohesive, flowing voice.
-"""

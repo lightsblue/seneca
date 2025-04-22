@@ -70,13 +70,13 @@ class LetterTranslator:
         prompt_path = os.path.join(base_path, "prompts")
         
         # Fix: These files were loaded with swapped names
-        # rewrite.v1.txt contains the Latin->English translation prompt
-        # translate.v1.txt contains the English->Modern English prompt
-        with open(os.path.join(prompt_path, "rewrite.v1.txt")) as f:
+        # direct.v1.txt contains the Latin->English translation prompt
+        # rhetorical.v1.txt contains the English->Modern English prompt
+        with open(os.path.join(prompt_path, "direct.v1.txt")) as f:
             self.direct_prompt = f.read()
         
-        with open(os.path.join(prompt_path, "translate.v1.txt")) as f:
-            self.rewrite_prompt = f.read()
+        with open(os.path.join(prompt_path, "rhetorical.v1.txt")) as f:
+            self.rhetorical_prompt = f.read()
 
     def translate_chunk(
         self,
@@ -189,7 +189,7 @@ class LetterTranslator:
         for paragraph in paragraphs:
             translation, conversation_history = self.translate_chunk(
                 paragraph,
-                self.rewrite_prompt,
+                self.rhetorical_prompt,
                 conversation_history
             )
             final_paragraphs.append(translation)
@@ -231,7 +231,7 @@ class LetterTranslator:
             for sentence in direct_sentences:
                 translation, conversation_history = self.translate_chunk(
                     sentence,
-                    self.rewrite_prompt,
+                    self.rhetorical_prompt,
                     conversation_history
                 )
                 rhetorical_sentences.append(translation)
